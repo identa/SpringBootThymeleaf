@@ -1,13 +1,16 @@
 package com.example.demo.controller;
 
+import com.example.demo.service.UserService;
+import com.example.demo.utils.Encoder;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.sql.DataSource;
+import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -16,6 +19,9 @@ public class WelcomeController {
     // inject via application.properties
     @Value("${welcome.message}")
     private String message;
+
+    @Autowired
+    UserService userService;
 
     private List<String> tasks = Arrays.asList("a", "b", "c", "d", "e", "f", "g");
 
@@ -35,15 +41,23 @@ public class WelcomeController {
 
         model.addAttribute("message", name);
 
-        return "404";
+        return "blank";
     }
 
-    @GetMapping("/login/{admin}")
-    public String login(
-            @PathVariable(name = "admin", required = false)
-                    String admin, Model model) {
-        model.addAttribute("admin", admin);
-
+    @GetMapping("/signup")
+    public String signUp(Model model){
+        model.addAttribute("message","Anh Son");
         return "login";
     }
+
+    @PostMapping("/login")
+    public String signUp2(@ModelAttribute("email") String email, @ModelAttribute("password") String password, Model model){
+        boolean loginStatus = userService.login(email, password);
+        if (loginStatus) return "blank";
+        else {
+            model.addAttribute("error", "Cannot login. Please try again!");
+            return "login";
+        }
+    }
+
 }
